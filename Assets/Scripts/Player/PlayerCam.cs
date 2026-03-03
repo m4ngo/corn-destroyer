@@ -17,8 +17,7 @@ public class PlayerCam : MonoBehaviour
 
     private void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        GUIManager.Instance.HideCursor(true);
     }
 
     public void OnLook(InputValue value)

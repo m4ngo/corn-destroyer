@@ -46,6 +46,12 @@ public class GUIManager : MonoBehaviour
         activePage = GetPage(name);
         activePage.pageObject.SetActive(true);
     }
+
+    public void HideCursor(bool isHidden)
+    {
+        Cursor.lockState = isHidden ? CursorLockMode.Locked : CursorLockMode.None;
+        Cursor.visible = !isHidden;
+    }
 }
 
 [System.Serializable]

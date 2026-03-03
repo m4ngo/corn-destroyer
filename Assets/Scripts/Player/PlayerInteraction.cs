@@ -71,7 +71,7 @@ public class PlayerInteraction : MonoBehaviour
         Rigidbody rb = slice.AddComponent<Rigidbody>();
         rb.mass = 0.01f;
         rb.angularDamping = 2f;
-        rb.linearDamping = 0.5f;
+        rb.linearDamping = 0.3f;
 
         Bounds b = slice.GetComponent<MeshRenderer>().bounds;
         BoxCollider collider = slice.AddComponent<BoxCollider>();
