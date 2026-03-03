@@ -1,35 +1,81 @@
 using EzySlice;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerInteraction : MonoBehaviour
 {
-    public GameObject objectToSlice; // non-null
+    public string breakableTag;
+    public int minSliceCount = 2;
+    public int maxSliceCount = 6;
+    public Transform cam;
+    public float interactRange = 4.0f;
+    public float interactRadius = 0.25f;
+    public Material sliceMaterial;
 
-    private void Start()
+    public void OnAttack(InputValue value)
     {
-        Shatter(objectToSlice, 5);
-    }
-
-    public void Shatter(GameObject o, int count)
-    {
-        for (int i = 0; i < count; ++i)
+        RaycastHit[] hits = Physics.SphereCastAll(cam.position, interactRadius, cam.forward, interactRange);
+        foreach (RaycastHit h in hits)
         {
-            Vector3 rand = new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), Random.Range(-1f, 1f));
-            GameObject[] slices = Slice(o, o.transform.position, rand);
-            foreach (GameObject slice in slices)
+            if (!h.collider.CompareTag(breakableTag))
             {
-                Rigidbody rb = slice.AddComponent<Rigidbody>();
-                rb.mass = 0.01f;
-                rb.angularDamping = 5.0f;
-                rb.linearDamping = 1.0f;
-                slice.AddComponent<SphereCollider>().radius = 0.2f;
+                continue;
             }
+            Shatter(h.transform.gameObject, Random.Range(minSliceCount, maxSliceCount + 1));
         }
-        Destroy(o);
     }
 
-    public GameObject[] Slice(GameObject o, Vector3 planeWorldPosition, Vector3 planeWorldDirection)
+    public void Shatter(GameObject original, int count)
     {
-        return o.SliceInstantiate(planeWorldPosition, planeWorldDirection);
+        List<GameObject> currentPieces = new List<GameObject>();
+        currentPieces.Add(original);
+
+        for (int i = 0; i < count; i++)
+        {
+            List<GameObject> newPieces = new List<GameObject>();
+
+            foreach (GameObject piece in currentPieces)
+            {
+                if (piece == null) continue;
+
+                Vector3 direction = Random.onUnitSphere;
+
+                SlicedHull hull = piece.Slice(piece.transform.position, direction, sliceMaterial);
+
+                if (hull != null)
+                {
+                    GameObject upper = hull.CreateUpperHull(piece, sliceMaterial);
+                    GameObject lower = hull.CreateLowerHull(piece, sliceMaterial);
+
+                    SetupSlice(upper);
+                    SetupSlice(lower);
+
+                    newPieces.Add(upper);
+                    newPieces.Add(lower);
+
+                    Destroy(piece);
+                }
+                else
+                {
+                    newPieces.Add(piece);
+                }
+            }   
+
+            currentPieces = newPieces;
+        }
+    }
+
+    private void SetupSlice(GameObject slice)
+    {
+        Rigidbody rb = slice.AddComponent<Rigidbody>();
+        rb.mass = 0.01f;
+        rb.angularDamping = 2f;
+        rb.linearDamping = 0.5f;
+
+        Bounds b = slice.GetComponent<MeshRenderer>().bounds;
+        BoxCollider collider = slice.AddComponent<BoxCollider>();
+        collider.center = b.center - rb.position;
+        collider.size = b.size / 3f;
     }
 }
