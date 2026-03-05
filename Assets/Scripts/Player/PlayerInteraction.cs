@@ -13,6 +13,8 @@ public class PlayerInteraction : MonoBehaviour
     public float interactRadius = 0.25f;
     public Material sliceMaterial;
 
+    private bool isPaused = false;
+
     public void OnAttack(InputValue value)
     {
         RaycastHit[] hits = Physics.SphereCastAll(cam.position, interactRadius, cam.forward, interactRange);
@@ -24,6 +26,14 @@ public class PlayerInteraction : MonoBehaviour
             }
             Shatter(h.transform.gameObject, Random.Range(minSliceCount, maxSliceCount + 1));
         }
+    }
+
+    public void OnPause(InputValue value)
+    {
+        isPaused = !isPaused;
+        Time.timeScale = isPaused ? 0.0f : 1.0f;
+        GUIManager.Instance.SetPage(isPaused ? "game_settings" : "game");
+        GUIManager.Instance.HideCursor(!isPaused);
     }
 
     public void Shatter(GameObject original, int count)

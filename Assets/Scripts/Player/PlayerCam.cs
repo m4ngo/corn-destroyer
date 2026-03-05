@@ -27,6 +27,11 @@ public class PlayerCam : MonoBehaviour
 
     private void Update()
     {
+        if (Time.timeScale <= 0.5f)
+        {
+            return;
+        }
+
         float mouseX = xy.x * sens;
         float mouseY = xy.y * sens;
 

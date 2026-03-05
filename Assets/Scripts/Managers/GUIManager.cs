@@ -20,6 +20,7 @@ public class GUIManager : MonoBehaviour
 
     public Page[] pages;
     private Page activePage;
+    public GameObject[] elements;
 
     private void Start()
     {

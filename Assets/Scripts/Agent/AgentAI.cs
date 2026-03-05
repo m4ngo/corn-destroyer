@@ -68,5 +68,9 @@ public class AgentAI : MonoBehaviour
         {
             target.Shatter(collision.gameObject, 4);
         }
+        else if (collision.collider.CompareTag("Player"))
+        {
+            LoadSceneManager.Instance.GameOver();
+        }
     }
 }

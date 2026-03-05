@@ -74,6 +74,9 @@ public class PlayerMovement : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         hitbox = GetComponent<CapsuleCollider>();
         rb.freezeRotation = true;
+
+        speedMonitor = GUIManager.Instance.elements[0].GetComponent<TMP_Text>();
+        staminaBar = GUIManager.Instance.elements[1].GetComponent<Image>();
     }
 
     public void OnMove(InputValue value)
