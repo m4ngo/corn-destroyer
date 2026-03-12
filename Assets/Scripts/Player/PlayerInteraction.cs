@@ -1,5 +1,7 @@
 using EzySlice;
 using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -13,19 +15,28 @@ public class PlayerInteraction : MonoBehaviour
     public float interactRadius = 0.25f;
     public Material sliceMaterial;
 
+    public int maxShards = 50;
+    private List<GameObject> shards = new List<GameObject>();
     private bool isPaused = false;
+
+    private TMP_Text scoreText;
+    public int score = 0;
+
+    private void Start()
+    {
+        scoreText = GUIManager.Instance.elements[2].GetComponent<TMP_Text>();
+    }
 
     public void OnAttack(InputValue value)
     {
-        RaycastHit[] hits = Physics.SphereCastAll(cam.position, interactRadius, cam.forward, interactRange);
-        foreach (RaycastHit h in hits)
+        Physics.SphereCast(cam.position, interactRadius, cam.forward, out RaycastHit hit, interactRange);
+        if (hit.collider == null || !hit.collider.CompareTag(breakableTag))
         {
-            if (!h.collider.CompareTag(breakableTag))
-            {
-                continue;
-            }
-            Shatter(h.transform.gameObject, Random.Range(minSliceCount, maxSliceCount + 1));
+            return;
         }
+        Shatter(hit.transform.gameObject, Random.Range(minSliceCount, maxSliceCount + 1));
+        score += hit.collider.GetComponent<Breakable>().score;
+        scoreText.text = "Score: $" + score + "00";
     }
 
     public void OnPause(InputValue value)
@@ -74,6 +85,8 @@ public class PlayerInteraction : MonoBehaviour
 
             currentPieces = newPieces;
         }
+        shards = shards.Concat(currentPieces).ToList();
+        PruneShards();
     }
 
     private void SetupSlice(GameObject slice)
@@ -87,5 +100,15 @@ public class PlayerInteraction : MonoBehaviour
         BoxCollider collider = slice.AddComponent<BoxCollider>();
         collider.center = b.center - rb.position;
         collider.size = b.size / 3f;
+    }
+
+    private void PruneShards()
+    {
+        while (shards.Count > maxShards)
+        {
+            GameObject g = shards[0];
+            shards.RemoveAt(0);
+            Destroy(g);
+        }
     }
 }
