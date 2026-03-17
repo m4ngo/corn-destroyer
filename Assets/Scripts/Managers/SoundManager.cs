@@ -31,7 +31,7 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private AudioClip[] music;
     [SerializeField] private AudioSource musicSource;
     private int currentMusic = -1;
-    private float timer = 0f;
+    private float timer = 0.0f;
 
     public void Play(int index, float volume, Vector3 pos)
     {
@@ -64,6 +64,7 @@ public class SoundManager : MonoBehaviour
             }
             currentMusic = randMusic;
             musicSource.clip = music[currentMusic];
+            musicSource.Play();
             timer = music[currentMusic].length + 5f;
         }
     }

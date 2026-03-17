@@ -30,12 +30,12 @@ public class LoadSceneManager : MonoBehaviour
 
     public void ActivateMenu()
     {
-        StartCoroutine(_ActivateScene(1));
+        StartCoroutine(_ActivateScene(0));
     }
 
     public void ActivateGame()
     {
-        StartCoroutine(_ActivateScene(2));
+        StartCoroutine(_ActivateScene(1));
     }
 
     private IEnumerator _ActivateScene(int n)
