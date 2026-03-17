@@ -33,15 +33,12 @@ public class SoundManager : MonoBehaviour
     private int currentMusic = -1;
     private float timer = 0f;
 
-    public void Play(int index, float volume, bool randPan = false)
+    public void Play(int index, float volume, Vector3 pos)
     {
         sfxSources[currentSource].clip = sfx[index];
         sfxSources[currentSource].volume = volume;
         sfxSources[currentSource].Play();
-        if (randPan)
-        {
-            sfxSources[currentSource].panStereo = Random.Range(-0.3f, 0.3f);
-        }
+        sfxSources[currentSource].transform.position = pos;
         currentSource = (currentSource + 1) % (sfxSources.Length);
     }
 
@@ -67,7 +64,7 @@ public class SoundManager : MonoBehaviour
             }
             currentMusic = randMusic;
             musicSource.clip = music[currentMusic];
-            timer = music[currentMusic].length + 10f;
+            timer = music[currentMusic].length + 5f;
         }
     }
 }

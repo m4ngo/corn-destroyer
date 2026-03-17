@@ -9,7 +9,7 @@ public class PlayerMovement : MonoBehaviour
     {
         WALKING,
         RUNNING,
-        JUMPING,
+        //JUMPING,
         CROUCHING
     }
 
@@ -34,14 +34,17 @@ public class PlayerMovement : MonoBehaviour
     public float deceleration;
     public float airAccelMultiplier = 0.25f;
     private bool sprinting = false;
+    public float stepRate = 0.4f;
+    public int minSfx, maxSfx;
+    private float stepTime = 0.0f;
 
-    [Header("Jump")]
-    public float jumpForce;
-    public float jumpForwardForce;
-    public float airMultiplier;
-    public float gravity;
-    private float jumpCooldown = 0;
-    private bool jumping = false;
+    //[Header("Jump")]
+    //public float jumpForce;
+    //public float jumpForwardForce;
+    //public float airMultiplier;
+    //public float gravity;
+    //private float jumpCooldown = 0;
+    //private bool jumping = false;
 
     [Header("Crouch")]
     public float crouchSpeed;
@@ -53,8 +56,8 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Ground Check")]
     public float playerHeight;
-    public LayerMask whatIsGround;
-    public bool grounded;
+    //public LayerMask whatIsGround;
+    //public bool grounded;
 
     public Transform orientation;
     public Transform camPos;
@@ -65,9 +68,9 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody rb;
     private CapsuleCollider hitbox;
 
-    public bool GetGrounded() { return grounded; }
+    //public bool GetGrounded() { return grounded; }
     public bool getRunning() { return moveInput != Vector2.zero; }
-    public bool getJumping() { return !grounded && currentState == State.RUNNING; }
+    //public bool getJumping() { return !grounded && currentState == State.RUNNING; }
 
     private void Start()
     {
@@ -91,7 +94,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void OnJump(InputValue value)
     {
-        jumping = value.isPressed;
+        //jumping = value.isPressed;
     }
 
     public void OnSprint(InputValue value)
@@ -101,7 +104,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        Checks();
+        //Checks();
         DecideState();
         Move();
 
@@ -109,11 +112,11 @@ public class PlayerMovement : MonoBehaviour
         staminaBar.fillAmount = (currentStamina - 7) / (maxStamina - 7);
     }
 
-    void Checks()
-    {
-        grounded = Physics.CheckSphere(transform.position + new Vector3(0, -1.0f, 0), 0.34f, whatIsGround);
-        headCovered = Physics.CheckSphere(transform.position + new Vector3(0, 0.4f, 0), 0.3f, whatIsGround);
-    }
+    //void Checks()
+    //{
+    //    grounded = Physics.CheckSphere(transform.position + new Vector3(0, -1.0f, 0), 0.34f, whatIsGround);
+    //    headCovered = Physics.CheckSphere(transform.position + new Vector3(0, 0.4f, 0), 0.3f, whatIsGround);
+    //}
 
     void DecideState()
     {
@@ -135,7 +138,7 @@ public class PlayerMovement : MonoBehaviour
 
         CrouchVisualHandling();
 
-        if (!grounded)
+        /* if (!grounded)
         {
             rb.linearVelocity += new Vector3(0, -gravity * Time.deltaTime, 0);
         }
@@ -145,7 +148,8 @@ public class PlayerMovement : MonoBehaviour
         {
             currentState = State.JUMPING;
         }
-        else if (crouching && grounded || headCovered)
+        else */
+        if (crouching /*&& grounded*/ || headCovered)
         {
             currentState = State.CROUCHING;
         }
@@ -175,14 +179,14 @@ public class PlayerMovement : MonoBehaviour
                 Run(sprintSpeed);
                 break;
 
-            case State.JUMPING:
-                PlayerCam.targetFOV = 84;
-                LoseStamina(jumpStaminaDrain);
+            //case State.JUMPING:
+            //    PlayerCam.targetFOV = 84;
+            //    LoseStamina(jumpStaminaDrain);
 
-                jumpCooldown = 0.2f;
-                rb.linearVelocity = new Vector3(rb.linearVelocity.x, jumpForce, rb.linearVelocity.z);
-                rb.linearVelocity += GetSpeed() * jumpForwardForce;
-                break;
+            //    jumpCooldown = 0.2f;
+            //    rb.linearVelocity = new Vector3(rb.linearVelocity.x, jumpForce, rb.linearVelocity.z);
+            //    rb.linearVelocity += GetSpeed() * jumpForwardForce;
+            //    break;
 
             case State.CROUCHING:
                 PlayerCam.targetFOV = 72;
@@ -195,6 +199,16 @@ public class PlayerMovement : MonoBehaviour
 
     void Run(float speed)
     {
+        if (moveInput.sqrMagnitude > 0.1f)
+        {
+            stepTime -= Time.deltaTime;
+            if (stepTime <= 0)
+            {
+                SoundManager.Instance.Play(Random.Range(minSfx, maxSfx), Random.Range(0.8f, 0.9f), transform.position);
+                stepTime = 1f / (stepRate * speed);
+            }
+        }
+
         moveInput = moveInput.normalized;
         moveDirection = orientation.forward * moveInput.y + orientation.right * moveInput.x;
         moveDirection = moveDirection.normalized;
@@ -204,11 +218,11 @@ public class PlayerMovement : MonoBehaviour
         // on ground
         if (moveDirection != Vector3.zero && speed > 0)
         {
-            temp = Vector3.Lerp(temp, moveDirection * (!grounded ? airMultiplier : 1f), Time.deltaTime * acceleration * AirFactor());
+            temp = Vector3.Lerp(temp, moveDirection /** (!grounded ? airMultiplier : 1f)*/, Time.deltaTime * acceleration /** AirFactor()*/);
         }
         else
         {
-            temp = Vector3.Lerp(temp, Vector3.zero, Time.deltaTime * deceleration * AirFactor());
+            temp = Vector3.Lerp(temp, Vector3.zero, Time.deltaTime * deceleration /** AirFactor()*/);
         }
         rb.linearVelocity = new Vector3(temp.x, rb.linearVelocity.y, temp.z);
     }
@@ -219,7 +233,7 @@ public class PlayerMovement : MonoBehaviour
         Vector3 center = new Vector3(0, 0, 0);
         Vector3 cam = new Vector3(0, 0.75f, 0);
 
-        if ((crouching || headCovered) && grounded)
+        if ((crouching || headCovered)/* && grounded*/)
         {
             height = crouchHeight;
             center = new Vector3(0, crouchOffset, 0);
@@ -242,8 +256,8 @@ public class PlayerMovement : MonoBehaviour
         return new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
     }
 
-    float AirFactor()
-    {
-        return grounded ? 1f : airAccelMultiplier;
-    }
+    //float AirFactor()
+    //{
+    //    return grounded ? 1f : airAccelMultiplier;
+    //}
 }

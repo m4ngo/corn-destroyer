@@ -21,7 +21,7 @@ public class EffectManager : MonoBehaviour
 
     [SerializeField] public GameObject[] effects;
 
-    public void SpawnEffect(int effect, Vector2 pos)
+    public void SpawnEffect(int effect, Vector3 pos)
     {
         Destroy(Instantiate(effects[effect], pos, Quaternion.identity), 5f);
     }

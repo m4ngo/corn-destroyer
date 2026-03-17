@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 
 public class AgentAI : MonoBehaviour
 {
@@ -14,16 +15,22 @@ public class AgentAI : MonoBehaviour
     public Transform graphic;
     public Transform[] waypoints;
     public PlayerInteraction target;
-    private int currentWaypoint;
+    public int currentWaypoint;
     private Rigidbody rb;
+    private GameObject spottedText;
+    private TMP_Text scoreText;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+        spottedText = GUIManager.Instance.elements[3];
+        scoreText = GUIManager.Instance.elements[4].GetComponent<TMP_Text>();
     }
 
     private void Update()
     {
+        spottedText.SetActive(isFollowing > 0);
+
         // find and update target
         Physics.Raycast(transform.position,
                         target.transform.position - transform.position,
@@ -33,9 +40,13 @@ public class AgentAI : MonoBehaviour
         {
             isFollowing = followTime;
         }
-        else
+        else if (isFollowing > 0)
         {
             isFollowing -= Time.deltaTime;
+            if (isFollowing <= 0)
+            {
+                SetClosestWaypoint();
+            }
         }
 
         // check waypoints
@@ -57,6 +68,22 @@ public class AgentAI : MonoBehaviour
         graphic.rotation = Quaternion.Lerp(graphic.rotation, Quaternion.LookRotation(GetTarget() - transform.position), Time.deltaTime * 5f);
     }
 
+    void SetClosestWaypoint()
+    {
+        int index = -1;
+        float dist = 99999f;
+        for (int i = 0; i < waypoints.Length; i++)
+        {
+            float d = Vector3.Distance(waypoints[i].position, transform.position);
+            if (d <= dist)
+            {
+                dist = d;
+                index = i;
+            }
+        }
+        currentWaypoint = index;
+    }
+
     private Vector3 GetTarget()
     {
         return isFollowing > 0 ? target.transform.position : waypoints[currentWaypoint].position;
@@ -70,6 +97,7 @@ public class AgentAI : MonoBehaviour
         }
         else if (collision.collider.CompareTag("Player"))
         {
+            scoreText.text = $"You caused ${FindObjectsByType<PlayerInteraction>(FindObjectsSortMode.None)[0].score}00 of property damage!";
             LoadSceneManager.Instance.GameOver();
         }
     }

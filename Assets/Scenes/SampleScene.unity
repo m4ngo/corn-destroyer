@@ -438,19 +438,11 @@ MonoBehaviour:
   acceleration: 6
   deceleration: 12
   airAccelMultiplier: 0.2
-  jumpForce: 9
-  jumpForwardForce: 0.2
-  airMultiplier: 1.15
-  gravity: 14
   crouchSpeed: 3
   crouchHeight: 1.2
   crouchOffset: -0.375
   crouchCameraHeight: 0
   playerHeight: 2
-  whatIsGround:
-    serializedVersion: 2
-    m_Bits: 64
-  grounded: 0
   orientation: {fileID: 1188603666}
   camPos: {fileID: 1184522394}
 --- !u!54 &250634863
@@ -566,8 +558,9 @@ MonoBehaviour:
   maxSliceCount: 3
   cam: {fileID: 330585546}
   interactRange: 4
-  interactRadius: 0.25
+  interactRadius: 0.3
   sliceMaterial: {fileID: 2100000, guid: 2b9f56431939d9d438a9c2a097dae074, type: 2}
+  maxShards: 50
   score: 0
 --- !u!1 &263909539
 GameObject:

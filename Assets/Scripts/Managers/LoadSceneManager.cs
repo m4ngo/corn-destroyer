@@ -30,20 +30,21 @@ public class LoadSceneManager : MonoBehaviour
 
     public void ActivateMenu()
     {
-        StartCoroutine(_ActivateScene(0));
+        StartCoroutine(_ActivateScene(1));
     }
 
     public void ActivateGame()
     {
-        StartCoroutine(_ActivateScene(1));
+        StartCoroutine(_ActivateScene(2));
     }
 
     private IEnumerator _ActivateScene(int n)
     {
+        Time.timeScale = 1.0f;
         transition.SetTrigger("start");
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSecondsRealtime(0.5f);
         yield return SceneManager.LoadSceneAsync(n);
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSecondsRealtime(0.5f);
         transition.SetTrigger("end");
     }
 
